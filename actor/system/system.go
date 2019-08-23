@@ -23,11 +23,10 @@ func New() actor.System {
 }
 
 func actorLoop(actor actor.Actor, mailbox mailbox.Mailbox) {
-	// var err error
 	for {
 		prevState := actor
 		message, err := mailbox.Dequeue()
-		if err != nil && err == errors.Terminate {
+		if err != nil {
 			break
 		}
 
@@ -104,7 +103,9 @@ func (s *system) AwaitTermination() {
 }
 
 func (s *system) CloseAll() {
+	s.lock.Lock()
 	for _, mb := range s.mailboxes {
 		mb.CloseQueue()
 	}
+	s.lock.Unlock()
 }
