@@ -23,10 +23,13 @@ func New() actor.System {
 }
 
 func actorLoop(actor actor.Actor, mailbox mailbox.Mailbox) {
-	var err error
 	for {
 		prevState := actor
-		message := mailbox.Dequeue()
+		message, err := mailbox.Dequeue()
+		if err != nil {
+			break
+		}
+
 		actor, err = prevState.Receive(message)
 
 		if err == errors.Stash {
@@ -97,4 +100,12 @@ func (s *system) SendPriority(pid actor.Pid, message actor.Message) error {
 
 func (s *system) AwaitTermination() {
 	s.wg.Wait()
+}
+
+func (s *system) CloseAll() {
+	s.lock.Lock()
+	for _, mb := range s.mailboxes {
+		mb.CloseQueue()
+	}
+	s.lock.Unlock()
 }
