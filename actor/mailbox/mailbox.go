@@ -113,18 +113,17 @@ func (mb *mailbox) Unstash() {
 }
 
 func (mb *mailbox) Dequeue() (actor.Message, error) {
-	var msg actor.Message
 	for {
 		mb.lock.Lock()
 
 		if !mb.priorityQueue.empty() {
-			msg = mb.priorityQueue.dequeue()
-			break
+			defer mb.lock.Unlock()
+			return mb.priorityQueue.dequeue(), nil
 		}
 
 		if !mb.regularQueue.empty() {
-			msg = mb.regularQueue.dequeue()
-			break
+			defer mb.lock.Unlock()
+			return mb.regularQueue.dequeue(), nil
 		}
 
 		// all queues are empty
@@ -135,8 +134,6 @@ func (mb *mailbox) Dequeue() (actor.Message, error) {
 			return struct{}{}, errors.Terminate
 		}
 	}
-	mb.lock.Unlock()
-	return msg, nil
 }
 
 func (mb *mailbox) CloseQueue() {
