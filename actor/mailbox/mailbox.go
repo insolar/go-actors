@@ -137,5 +137,7 @@ func (mb *mailbox) Dequeue() (actor.Message, error) {
 }
 
 func (mb *mailbox) CloseQueue() {
+	mb.lock.Lock()
+	defer mb.lock.Unlock()
 	close(mb.notifyDequeue)
 }
