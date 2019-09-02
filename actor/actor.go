@@ -4,7 +4,9 @@ package actor
 type Pid uint64
 
 // Message represents a message sent between actors.
-type Message interface{}
+type Message interface {}
+
+
 
 // Actor is an entity that processes messages, sends messages to other
 // actors and stores some state.
@@ -39,7 +41,4 @@ type System interface {
 
 	// AwaitTermination returns when all spawned Actors terminate.
 	AwaitTermination()
-
-	// CloseAll forces termination of all spawned Actors
-	CloseAll()
 }

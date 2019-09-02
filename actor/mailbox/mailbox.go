@@ -20,11 +20,7 @@ type Mailbox interface {
 	// Dequeue gets a next message from the Mailbox. If Mailbox is empty,
 	// Dequeue blocks until someone places a message to the Mailbox. There
 	// should be only one goroutine that uses this method.
-	Dequeue() (actor.Message, error)
-
-	// CloseQueue can be used to force closing notifyDequeue
-	// to avoid leaking goroutine error
-	CloseQueue()
+	Dequeue() actor.Message
 
 	// Stash places a message to the separate queue of delayed messages.
 	// This method should be called from the same single goroutine that calls Dequeue.
@@ -112,32 +108,26 @@ func (mb *mailbox) Unstash() {
 	// that is waiting in Dequeue.
 }
 
-func (mb *mailbox) Dequeue() (actor.Message, error) {
+func (mb *mailbox) Dequeue() actor.Message {
+	var msg actor.Message
 	for {
 		mb.lock.Lock()
 
 		if !mb.priorityQueue.empty() {
-			defer mb.lock.Unlock()
-			return mb.priorityQueue.dequeue(), nil
+			msg = mb.priorityQueue.dequeue()
+			break
 		}
 
 		if !mb.regularQueue.empty() {
-			defer mb.lock.Unlock()
-			return mb.regularQueue.dequeue(), nil
+			msg = mb.regularQueue.dequeue()
+			break
 		}
 
 		// all queues are empty
 		mb.dequeueIsWaiting = true
 		mb.lock.Unlock()
-		_, ok := <-mb.notifyDequeue
-		if !ok {
-			return struct{}{}, errors.Terminate
-		}
+		<-mb.notifyDequeue
 	}
-}
-
-func (mb *mailbox) CloseQueue() {
-	mb.lock.Lock()
-	defer mb.lock.Unlock()
-	close(mb.notifyDequeue)
+	mb.lock.Unlock()
+	return msg
 }
