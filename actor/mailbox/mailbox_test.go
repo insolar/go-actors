@@ -12,7 +12,7 @@ func TestMailboxEnqueueDequeue(t *testing.T) {
 	mb := New()
 	err := mb.Enqueue("msg1")
 	require.NoError(t, err)
-	msg, err := mb.Dequeue()
+	msg := mb.Dequeue()
 	require.Equal(t, "msg1", msg)
 }
 
@@ -25,11 +25,11 @@ func TestMailboxOrdering(t *testing.T) {
 	require.NoError(t, err)
 	err = mb.Enqueue("msg3")
 	require.NoError(t, err)
-	msg, err := mb.Dequeue()
+	msg := mb.Dequeue()
 	require.Equal(t, "msg1", msg)
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg2", msg)
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg3", msg)
 }
 
@@ -42,11 +42,11 @@ func TestMailboxEnqueueFront(t *testing.T) {
 	require.NoError(t, err)
 	err = mb.EnqueueFront("important!")
 	require.NoError(t, err)
-	msg, err := mb.Dequeue()
+	msg := mb.Dequeue()
 	require.Equal(t, "important!", msg)
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg1", msg)
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg2", msg)
 }
 
@@ -60,17 +60,17 @@ func TestMailboxStashUnstash(t *testing.T) {
 	err = mb.Enqueue("msg3")
 	require.NoError(t, err)
 
-	msg, err := mb.Dequeue()
+	msg := mb.Dequeue()
 	require.Equal(t, "msg1", msg)
 	mb.Stash(msg)
 
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg2", msg)
 	mb.Unstash()
 
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg1", msg)
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg3", msg)
 }
 
@@ -80,8 +80,7 @@ func TestMailboxEnqueueWaiting(t *testing.T) {
 	result := make(chan string, 1)
 
 	go func() {
-		r, _ := mb.Dequeue()
-		result <- r.(string)
+		result <- mb.Dequeue().(string)
 	}()
 
 	for {
@@ -108,8 +107,7 @@ func TestMailboxEnqueueFrontWaiting(t *testing.T) {
 	result := make(chan string, 1)
 
 	go func() {
-		r, _ := mb.Dequeue()
-		result <- r.(string)
+		result <- mb.Dequeue().(string)
 	}()
 
 	for {
@@ -144,10 +142,10 @@ func TestMailboxSetLimit(t *testing.T) {
 	err = mb.EnqueueFront("important!")
 	require.NoError(t, err)
 
-	msg, err := mb.Dequeue()
+	msg := mb.Dequeue()
 	require.Equal(t, "important!", msg)
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg1", msg)
-	msg, err = mb.Dequeue()
+	msg = mb.Dequeue()
 	require.Equal(t, "msg2", msg)
 }

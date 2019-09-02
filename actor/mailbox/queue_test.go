@@ -1,12 +1,11 @@
 package mailbox
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/require"
+	"testing"
 )
 
-func TestNewQueueIsEmpty(t *testing.T) {
+func TestNewQueueIsEmtpy(t *testing.T) {
 	t.Parallel()
 	q := queue{}
 	q.init()
@@ -18,7 +17,7 @@ func TestQueueEnqueueDequeue(t *testing.T) {
 	t.Parallel()
 	q := queue{}
 	q.init()
-	inMsg := struct{ payload string }{payload: "hello"}
+	inMsg := struct{ payload string}{ payload: "hello" }
 	require.True(t, q.empty())
 	require.Equal(t, 0, q.length())
 	q.enqueue(inMsg)
@@ -33,9 +32,9 @@ func TestQueueOrdering(t *testing.T) {
 	t.Parallel()
 	q := queue{}
 	q.init()
-	msg1 := struct{ payload string }{payload: "msg1"}
-	msg2 := struct{ payload string }{payload: "msg2"}
-	msg3 := struct{ payload string }{payload: "msg3"}
+	msg1 := struct{ payload string }{ payload: "msg1" }
+	msg2 := struct{ payload string }{ payload: "msg2" }
+	msg3 := struct{ payload string }{ payload: "msg3" }
 	q.enqueue(msg1)
 	q.enqueue(msg2)
 	q.enqueue(msg3)
@@ -45,32 +44,17 @@ func TestQueueOrdering(t *testing.T) {
 	require.True(t, q.empty())
 }
 
-func TestQueueEmptyCheck(t *testing.T) {
-	t.Parallel()
-	q := queue{}
-	q.init()
-	require.True(t, q.empty())
-	q.enqueue(struct{ payload string }{payload: "msg1"})
-
-	q.dequeue()
-	require.True(t, q.empty())
-	q.dequeue()
-	require.True(t, q.empty())
-	q.dequeue()
-	require.True(t, q.empty())
-}
-
 func TestQueueMoveFromQueue(t *testing.T) {
 	t.Parallel()
 	q1_messages := []struct{ payload string }{
-		{payload: "q1-msg1"},
-		{payload: "q1-msg2"},
-		{payload: "q1-msg3"},
+		{ payload: "q1-msg1" },
+		{ payload: "q1-msg2" },
+		{ payload: "q1-msg3" },
 	}
 	q2_messages := []struct{ payload string }{
-		{payload: "q2-msg1"},
-		{payload: "q2-msg2"},
-		{payload: "q2-msg3"},
+		{ payload: "q2-msg1" },
+		{ payload: "q2-msg2" },
+		{ payload: "q2-msg3" },
 	}
 
 	for q1len := 0; q1len <= 3; q1len++ {
